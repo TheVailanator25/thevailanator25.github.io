@@ -14,8 +14,8 @@ type PresentationOptions={intro?:boolean;hero?:boolean;onReady?:()=>void;onError
 export function createHologram(canvas:HTMLCanvasElement,host:HTMLElement,onComplete?:()=>void,options:PresentationOptions={}){
  const presentation=createPresentation(!!options.intro),assemblyUniform={value:options.intro?0:10};
  let introNotified=!options.intro,entryNotified=false;
- const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,premultipliedAlpha:false,powerPreference:'low-power'});
- renderer.setClearColor(0x000000,0);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+ const renderer=new THREE.WebGLRenderer({canvas,alpha:false,antialias:true,powerPreference:'low-power'});
+ renderer.setClearColor(0x000000,1);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(39,1,.1,30);camera.position.set(0,.1,6.1);camera.lookAt(0,0,0);
  const world=new THREE.Group(),shell=new THREE.Group(),interior=new THREE.Group(),core=new THREE.Group();world.add(shell,interior,core);scene.add(world);
  const geometries:THREE.BufferGeometry[]=[],materials:THREE.Material[]=[];
@@ -193,7 +193,9 @@ export function createHologram(canvas:HTMLCanvasElement,host:HTMLElement,onCompl
 
  const composer=new EffectComposer(renderer),renderPass=new RenderPass(scene,camera),bloom=new UnrealBloomPass(new THREE.Vector2(512,512),.95,.45,.13);
  composer.addPass(renderPass);composer.addPass(bloom);
- const finish=new ShaderPass({uniforms:{tDiffuse:{value:null},uEntry:{value:0},uOpacity:{value:1}},vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,fragmentShader:`uniform float uEntry;uniform float uOpacity;uniform sampler2D tDiffuse;varying vec2 vUv;void main(){vec3 light=texture2D(tDiffuse,vUv).rgb;light=vec3(1.0)-exp(-light*1.25);float a=clamp(max(max(light.r,light.g),light.b),0.0,1.0);float fade=mix(1.0-smoothstep(.43,.5,length(vUv-.5)),1.0,smoothstep(0.0,.25,uEntry));gl_FragColor=vec4(light/max(a,.00001),a*fade*uOpacity);}`});composer.addPass(finish);
+ // Composite the glow onto opaque black so browser alpha handling cannot expose
+ // the normalized bloom colour as a solid orange rectangle.
+ const finish=new ShaderPass({uniforms:{tDiffuse:{value:null},uEntry:{value:0},uOpacity:{value:1}},vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,fragmentShader:`uniform float uEntry;uniform float uOpacity;uniform sampler2D tDiffuse;varying vec2 vUv;void main(){vec3 light=texture2D(tDiffuse,vUv).rgb;light=vec3(1.0)-exp(-light*1.25);float fade=mix(1.0-smoothstep(.43,.5,length(vUv-.5)),1.0,smoothstep(0.0,.25,uEntry));gl_FragColor=vec4(light*fade*uOpacity,1.0);}`});composer.addPass(finish);
  let frame=0,previous=0,time=0,level=0,audioLevel=0,energy=1,disposed=false,contextLost=false,warmed=false,activeScene=true;
  let intensity=1,pace=1,paused=false,flowTime=0,coreTurn=0;
  const weights={listening:0,thinking:0,working:0,speaking:0,complete:0};

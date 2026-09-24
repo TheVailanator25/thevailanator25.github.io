@@ -1,0 +1,7 @@
+Aurebesh AF Canon
+Author: AurekFonts (2020)
+License stated by the author: Free for all personal and commercial uses.
+Source: https://aurekfonts.github.io/?font=AurebeshAF
+License metadata: https://aurekfonts.github.io/src/fonts.js
+Font: https://github.com/AurekFonts/AurekFonts.github.io/tree/master/AurebeshAF
+Bundled locally and unmodified for the EVE footer Easter egg.
