@@ -1,6 +1,6 @@
 # EVE website
 
-Minimal public information site for EVE Personal Assistant, with a full-height amber orb, an Eve heading, a Personal Assistant caption in Aurebesh, and About, Privacy and Terms pages.
+Minimal public information site for EVE Personal Assistant, with a full-height amber orb, a large, widely spaced EVE heading, a Personal Assistant caption in Aurebesh, and About, Privacy and Terms pages.
 
 This repository contains only the website. There is no assistant backend, OAuth client configuration, email connection or user data here.
 
